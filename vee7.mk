@@ -8,11 +8,6 @@ $(call inherit-product-if-exists, vendor/lge/vee7/vee7-vendor.mk)
 DEVICE_PACKAGE_OVERLAYS += device/lge/vee7/overlay
 
 
-ifeq ($(TARGET_PREBUILT_KERNEL),)
-	LOCAL_KERNEL := device/lge/vee7/kernel
-else
-	LOCAL_KERNEL := $(TARGET_PREBUILT_KERNEL)
-endif
 
 PRODUCT_COPY_FILES += \
     $(LOCAL_KERNEL):kernel
