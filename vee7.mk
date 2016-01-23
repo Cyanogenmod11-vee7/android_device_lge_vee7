@@ -1,19 +1,110 @@
+
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
 
-# The gps config appropriate for this device
 $(call inherit-product, device/common/gps/gps_us_supl.mk)
 
-$(call inherit-product-if-exists, vendor/lge/vee7/vee7-vendor.mk)
+$(call inherit-product, vendor/lge/lge/vee7.mk)
 
-DEVICE_PACKAGE_OVERLAYS += device/lge/vee7/overlay
+DEVICE_PACKAGE_OVERLAYS += device/lge/vee-common/overlay
 
-
-
-PRODUCT_COPY_FILES += \
-    $(LOCAL_KERNEL):kernel
+$(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
 
 $(call inherit-product, build/target/product/full.mk)
+
+
+# Fix Audio Compilation
+PRODUCT_COPY_FILES += vendor/lge/vee-common/proprietary/lib/libaudioalsa.so:obj/lib/libaudioalsa.so
+PRODUCT_COPY_FILES += vendor/lge/msm7x27a-common/proprietary/lib/libaudcal.so:obj/lib/libaudcal.so
+
+# Rootdir files
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,device/lge/vee7/rootdir,root)
+
+# Config Files
+PRODUCT_COPY_FILES += $(call find-copy-subdir-files,*,device/lge/vee7/system,system)
+
+# Special Google Media Codecs
+PRODUCT_COPY_FILES += frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml
+PRODUCT_COPY_FILES += frameworks/av/media/libstagefright/data/media_codecs_google_telephony.xml:system/etc/media_codecs_google_telephony.xml
+PRODUCT_COPY_FILES += frameworks/av/media/libstagefright/data/media_codecs_google_video_le.xml:system/etc/media_codecs_google_video_le.xml
+
+# Permission files
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.camera.xml:system/etc/permissions/android.hardware.camera.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.location.gps.xml:system/etc/permissions/android.hardware.location.gps.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.location.xml:system/etc/permissions/android.hardware.location.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.sensor.accelerometer.xml:system/etc/permissions/android.hardware.sensor.accelerometer.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.sensor.compass.xml:system/etc/permissions/android.hardware.sensor.compass.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.sensor.gyroscope.xml:system/etc/permissions/android.hardware.sensor.gyroscope.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.sensor.proximity.xml:system/etc/permissions/android.hardware.sensor.proximity.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.telephony.gsm.xml:system/etc/permissions/android.hardware.telephony.gsm.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.touchscreen.multitouch.distinct.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.distinct.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.touchscreen.multitouch.jazzhand.xml:system/etc/permissions/android.hardware.touchscreen.multitouch.jazzhand.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.touchscreen.xml:system/etc/permissions/android.hardware.touchscreen.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.wifi.direct.xml:system/etc/permissions/android.hardware.wifi.direct.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml
+PRODUCT_COPY_FILES += frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
+
+# Display HALS
+PRODUCT_PACKAGES += copybit.msm7x27a
+PRODUCT_PACKAGES += gralloc.msm7x27a
+PRODUCT_PACKAGES += memtrack.msm7x27a
+PRODUCT_PACKAGES += libqdMetaData
+
+# Video
+PRODUCT_PACKAGES += libstagefrighthw
+PRODUCT_PACKAGES += libmm-omxcore
+PRODUCT_PACKAGES += libOmxCore
+
+# Off-mode Charging
+PRODUCT_PACKAGES += charger
+PRODUCT_PACKAGES += charger_res_images
+
+# Gps
+PRODUCT_PACKAGES += gps.msm7x27a
+
+# Power Hal
+PRODUCT_PACKAGES += power.msm7x27a
+
+# BT
+PRODUCT_PACKAGES += libbt-vendor
+
+# EXT4
+PRODUCT_PACKAGES += make_ext4fs
+PRODUCT_PACKAGES += e2fsck
+PRODUCT_PACKAGES += setup_fs
+
+# Usb
+PRODUCT_PACKAGES += com.android.future.usb.accessory
+
+# Audio
+PRODUCT_PACKAGES += audio.a2dp.default
+PRODUCT_PACKAGES += audio.usb.default
+PRODUCT_PACKAGES += audio.r_submix.default
+PRODUCT_PACKAGES += audio.primary.msm7x27a
+PRODUCT_PACKAGES += audio_policy.msm7x27a
+PRODUCT_PACKAGES += libaudio-resampler
+PRODUCT_PACKAGES += libaudioparameter
+PRODUCT_PACKAGES += libaudioutils
+
+# Light HAL
+PRODUCT_PACKAGES += lights.msm7x27a
+
+# Camera Hal
+PRODUCT_PACKAGES += camera.msm7x27a
+
+# WiFi
+PRODUCT_PACKAGES += libwpa_client
+PRODUCT_PACKAGES += hostapd
+PRODUCT_PACKAGES += dhcpcd.conf
+PRODUCT_PACKAGES += wpa_supplicant
+PRODUCT_PACKAGES += wpa_supplicant.conf
+
 
 PRODUCT_BUILD_PROP_OVERRIDES += BUILD_UTC_DATE=0
 PRODUCT_NAME := full_vee7
 PRODUCT_DEVICE := vee7
+
+include device/lge/vee7/system_prop.mk
