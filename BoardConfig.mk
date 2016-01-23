@@ -40,6 +40,7 @@ TARGET_KERNEL_SOURCE := kernel/lge/vee7
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01300000
 BOARD_KERNEL_BASE := 0x00200000
 BOARD_KERNEL_PAGESIZE := 4096
+TARGET_KERNEL_CONFIG := cyanogenmod_vee7_defconfig
 BOARD_KERNEL_CMDLINE := androidboot.hardware=vee7 msm_cpr.enable=0 androidboot.selinux=permissive no_console_suspend=1
 
 # Partitions
