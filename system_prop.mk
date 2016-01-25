@@ -13,11 +13,10 @@
 # limitations under the License.
 #
 
-# For userdebug builds
-ifeq ($(TARGET_BUILD_VARIANT),userdebug)
-ADDITIONAL_DEFAULT_PROPERTIES += ro.secure="false"
-ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure="false"
-endif
+
+ADDITIONAL_DEFAULT_PROPERTIES += ro.secure="0"
+ADDITIONAL_DEFAULT_PROPERTIES += ro.adb.secure="0"
+
 # USB
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += persist.sys.usb.config="mtp"
 # Lcd Density

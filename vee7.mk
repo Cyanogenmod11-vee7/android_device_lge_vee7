@@ -9,9 +9,6 @@ DEVICE_PACKAGE_OVERLAYS += device/lge/vee-common/overlay
 
 $(call inherit-product, frameworks/native/build/phone-hdpi-512-dalvik-heap.mk)
 
-$(call inherit-product, build/target/product/full.mk)
-
-
 # Fix Audio Compilation
 PRODUCT_COPY_FILES += vendor/lge/vee-common/proprietary/lib/libaudioalsa.so:obj/lib/libaudioalsa.so
 PRODUCT_COPY_FILES += vendor/lge/msm7x27a-common/proprietary/lib/libaudcal.so:obj/lib/libaudcal.so
