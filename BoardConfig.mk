@@ -21,7 +21,7 @@ TARGET_AVOID_DRAW_TEXTURE_EXTENSION := true
 TARGET_USES_16BPPSURFACE_FOR_OPAQUE := true
 
 TARGET_NO_BOOTLOADER := true
-TARGET_BOOTLOADER_BOARD_NAME := vee
+TARGET_BOOTLOADER_BOARD_NAME := vee7
 TARGET_BOARD_PLATFORM := msm7x27a
 TARGET_BOARD_PLATFORM_GPU := qcom-adreno200
 TARGET_GRALLOC_USES_ASHMEM := true
@@ -132,30 +132,27 @@ WIFI_DRIVER_FW_PATH_P2P := "p2p"
 WIFI_DRIVER_FW_PATH_PARAM := "/data/misc/wifi/fwpath"
 
 # Sepolicy
-BOARD_SEPOLICY_DIRS += \
-	device/lge/vee-common/sepolicy
-
-BOARD_SEPOLICY_DIRS += device/lge/vee7/sepolicy
-
-BOARD_SEPOLICY_UNION += \
-       device.te \
-       file.te \
-       file_contexts \
-       healthd.te \
-       init_shell.te \
-       kernel.te \
-       led_deamon.te \
-       location.te \
-       mediaserver.te \
-       mm-qcamerad.te \
-       property.te \
-       property_contexts \
-       sdcardd.te \
-       sensors.te \
-       system_app.te \
-       system_server.te \
-       mpdecision.te \
-       vold.te
+#
+#BOARD_SEPOLICY_DIRS += device/lge/vee7/sepolicy
+#
+#BOARD_SEPOLICY_UNION += \
+#       device.te \
+#       file.te \
+#       file_contexts \
+#       healthd.te \
+#       init_shell.te \
+#       kernel.te \
+#       led_deamon.te \
+#       location.te \
+#       mediaserver.te \
+#       mm-qcamerad.te \
+#       property.te \
+#       property_contexts \
+#       sdcardd.te \
+#       sensors.te \
+#       system_app.te \
+#       system_server.te \
+#       vold.te
 
 # Bootanimation
 TARGET_BOOTANIMATION_PRELOAD := true
