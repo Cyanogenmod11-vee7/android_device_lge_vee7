@@ -94,7 +94,7 @@ on early-boot
 
 on boot	
 	
-	start qcamerasvr
+
     chown system system /sys/devices/virtual/input/lge_touch/keyguard
     chown system system /sys/devices/virtual/input/lge_touch/incoming_call
 	chown system system /sys/devices/virtual/input/lge_touch/ts_first_enable 
@@ -316,7 +316,9 @@ on post-fs-data
     
     # Create /data/time folder for time-services
     mkdir /data/time/ 0700 system system
-
+    
+	start qcamerasvr
+	
     setprop vold.post_fs_data_done 1
  
 # Sensors
@@ -375,18 +377,11 @@ service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1
     class late_start
     disabled
     
-service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+service fuse_sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
     class late_start
-	disabled
-    
-on property:ro.fuse_sdcard=true
-    start sdcard
 
-on property:init.svc.fuse_sdcard=running
-    wait /mnt/shell/emulated/0
-    mount none /mnt/shell/emulated/0 /storage/emulated/legacy bind
     
-# S -> Radio and socket area
+ S -> Radio and socket area
 service ril-daemon1 /system/bin/rild -c 1
     class main
     socket rild1 stream 660 root radio
@@ -401,8 +396,9 @@ service qmuxd /system/bin/qmuxd
     group radio audio bluetooth gps qcom_diag
     
 service netmgrd /system/bin/netmgrd
-    class main
-# E -> Radio and socket area
+   class main
+ 
+E -> Radio and socket area
 
 # Adjust socket buffer to enlarge TCP receive window for high bandwidth
 # but only if ro.data.large_tcp_window_size property is set.
