@@ -6,7 +6,11 @@
 LOCAL_PATH := $(call my-dir)
 
 common_cflags := -D_POSIX_SOURCE
-ifeq ($(strip $(AUDIO_FEATURE_ENABLED_FM)),true)
+ifneq ($(strip $(QCOM_ANC_HEADSET_ENABLED)),false)
+    common_cflags += -DQCOM_ANC_HEADSET_ENABLED
+endif
+
+ifeq ($(strip $(QCOM_FM_ENABLED)),true)
     common_cflags += -DQCOM_FM_ENABLED
 endif
 
@@ -70,7 +74,6 @@ LOCAL_ADDITIONAL_DEPENDENCIES := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
 
 include $(BUILD_SHARED_LIBRARY)
 
-ifeq ($(USE_LEGACY_AUDIO_POLICY), 1)
 # The audio policy is implemented on top of legacy policy code
 include $(CLEAR_VARS)
 
@@ -100,5 +103,3 @@ LOCAL_C_INCLUDES += $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr/include
 LOCAL_ADDITIONAL_DEPENDENCIES := $(TARGET_OUT_INTERMEDIATES)/KERNEL_OBJ/usr
 
 include $(BUILD_SHARED_LIBRARY)
-
-endif

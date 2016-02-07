@@ -315,8 +315,8 @@ status_t AudioPolicyManager::setDeviceConnectionState(audio_devices_t device,
                     mScoDeviceAddress = String8(device_address, MAX_DEVICE_ADDRESS_LEN);
                 } else if (audio_is_usb_device(device)) {
                     // handle USB device connection
-                    mUsbOutCardAndDevice = String8(device_address, MAX_DEVICE_ADDRESS_LEN);
-                    paramStr = mUsbOutCardAndDevice;
+                    mUsbCardAndDevice = String8(device_address, MAX_DEVICE_ADDRESS_LEN);
+                    paramStr = mUsbCardAndDevice;
                 }
                 // not currently handling multiple simultaneous submixes: ignoring remote submix
                 //   case and address
@@ -354,7 +354,7 @@ status_t AudioPolicyManager::setDeviceConnectionState(audio_devices_t device,
                 mScoDeviceAddress = "";
             } else if (audio_is_usb_device(device)) {
                 // handle USB device disconnection
-                mUsbOutCardAndDevice = "";
+                mUsbCardAndDevice = "";
 
                 AudioParameter param;
                 param.add(String8("usb_connected"), String8("false"));
@@ -420,7 +420,15 @@ status_t AudioPolicyManager::setDeviceConnectionState(audio_devices_t device,
            //start with tunnel mode to avoid current device mismatch with APM to HAL(which effects temp mute)
            for (int i = mOutputs.size() -1; i >= 0; i--) {
                audio_devices_t newDevice = getNewDevice(mOutputs.keyAt(i), true /*fromCache*/);
-               setOutputDevice(mOutputs.keyAt(i),
+#ifdef QCOM_ANC_HEADSET_ENABLED
+               if(device == AUDIO_DEVICE_OUT_ANC_HEADPHONE ||
+                  device == AUDIO_DEVICE_OUT_ANC_HEADSET) {
+                  if(newDevice == 0){
+                      newDevice = getDeviceForStrategy(STRATEGY_MEDIA, false);
+                  }
+              }
+#endif
+              setOutputDevice(mOutputs.keyAt(i),
                             getNewDevice(mOutputs.keyAt(i), true /*fromCache*/),
                             true,
                             0);
@@ -429,7 +437,15 @@ status_t AudioPolicyManager::setDeviceConnectionState(audio_devices_t device,
        else {
            for (int i = 0; i < mOutputs.size(); i++) {
                audio_devices_t newDevice = getNewDevice(mOutputs.keyAt(i), true /*fromCache*/);
-               setOutputDevice(mOutputs.keyAt(i),
+#ifdef QCOM_ANC_HEADSET_ENABLED
+               if(device == AUDIO_DEVICE_OUT_ANC_HEADPHONE ||
+                  device == AUDIO_DEVICE_OUT_ANC_HEADSET) {
+                  if(newDevice == 0){
+                      newDevice = getDeviceForStrategy(STRATEGY_MEDIA, false);
+                  }
+              }
+#endif
+              setOutputDevice(mOutputs.keyAt(i),
                             getNewDevice(mOutputs.keyAt(i), true /*fromCache*/),
                             true,
                             0);
@@ -443,6 +459,10 @@ status_t AudioPolicyManager::setDeviceConnectionState(audio_devices_t device,
             device = AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET;
         } else if(device == AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET){
             device = AUDIO_DEVICE_IN_ANLG_DOCK_HEADSET;
+#ifdef QCOM_ANC_HEADSET_ENABLED
+        } else if(device == AUDIO_DEVICE_OUT_ANC_HEADSET){
+               device = AUDIO_DEVICE_IN_ANC_HEADSET; //wait for actual ANC device
+#endif
         } else {
             return NO_ERROR;
         }
@@ -514,7 +534,7 @@ AudioSystem::device_connection_state AudioPolicyManager::getDeviceConnectionStat
                 return state;
             }
             if (audio_is_usb_device(device) &&
-                ((address != "" && mUsbOutCardAndDevice != address))) {
+                ((address != "" && mUsbCardAndDevice != address))) {
                 ALOGE("getDeviceConnectionState() invalid device: %x", device);
                 return state;
             }
@@ -1033,8 +1053,8 @@ status_t AudioPolicyManager::stopOutput(audio_io_handle_t output,
 
 audio_io_handle_t AudioPolicyManager::getInput(int inputSource,
                                     uint32_t samplingRate,
-                                    audio_format_t format,
-                                    audio_channel_mask_t channelMask,
+                                    uint32_t format,
+                                    uint32_t channelMask,
                                     AudioSystem::audio_in_acoustics acoustics)
 {
     audio_io_handle_t input = 0;
@@ -1587,6 +1607,12 @@ audio_devices_t AudioPolicyManager::getDeviceForStrategy(routing_strategy strate
             if (device) break;
             device = mAvailableOutputDevices & AUDIO_DEVICE_OUT_WIRED_HEADSET;
             if (device) break;
+#ifdef QCOM_ANC_HEADSET_ENABLED
+            device = mAvailableOutputDevices & AUDIO_DEVICE_OUT_ANC_HEADPHONE;
+            if (device) break;
+            device = mAvailableOutputDevices & AUDIO_DEVICE_OUT_ANC_HEADSET;
+            if (device) break;
+#endif
             if (mPhoneState != AudioSystem::MODE_IN_CALL) {
                 device = mAvailableOutputDevices & AUDIO_DEVICE_OUT_USB_ACCESSORY;
                 if (device) break;
@@ -1696,6 +1722,14 @@ audio_devices_t AudioPolicyManager::getDeviceForStrategy(routing_strategy strate
             if (device2 == AUDIO_DEVICE_NONE) {
                 device2 = mAvailableOutputDevices & AUDIO_DEVICE_OUT_WIRED_HEADSET;
             }
+#ifdef QCOM_ANC_HEADSET_ENABLED
+            if (device2 == AUDIO_DEVICE_NONE) {
+                device2 = mAvailableOutputDevices & AUDIO_DEVICE_OUT_ANC_HEADPHONE;
+            }
+            if (device2 == AUDIO_DEVICE_NONE) {
+                device2 = mAvailableOutputDevices & AUDIO_DEVICE_OUT_ANC_HEADSET;
+            }
+#endif
             if (device2 == AUDIO_DEVICE_NONE) {
                 device2 = mAvailableOutputDevices & AUDIO_DEVICE_OUT_USB_ACCESSORY;
             }
@@ -1788,25 +1822,16 @@ uint32_t AudioPolicyManager::setOutputDevice(audio_io_handle_t output,
 
     ALOGV("setOutputDevice() prevDevice %04x", prevDevice);
 
-    // Device Routing has not been triggered in the following scenario:
-    // Start playback on HDMI/USB hs, pause it, unplug and plug HDMI
-    //cable/usb hs, resume playback, music starts on speaker. To avoid
-    //this, update mDevice even if device is 0 which triggers routing when
-    // HDMI cable/usb hs is reconnected
-    if (device != AUDIO_DEVICE_NONE ||
-        prevDevice == AUDIO_DEVICE_OUT_AUX_DIGITAL ||
-        prevDevice == AUDIO_DEVICE_OUT_ANLG_DOCK_HEADSET) {
+    if (device != AUDIO_DEVICE_NONE) {
         outputDesc->mDevice = device;
     }
-
     muteWaitMs = checkDeviceMuteStrategies(outputDesc, prevDevice, delayMs);
 
     // Do not change the routing if:
     //  - the requested device is AUDIO_DEVICE_NONE
     //  - the requested device is the same as current device and force is not specified.
     // Doing this check here allows the caller to call setOutputDevice() without conditions
-    //Force a device switch when HDMI/USB headset is disconnected
-    if ((device == AUDIO_DEVICE_NONE && !force) || ((device == prevDevice) && !force)) {
+    if ((device == AUDIO_DEVICE_NONE) || ((device == prevDevice) && !force)) {
         ALOGV("setOutputDevice() setting same device %04x or null device for output %d", device, output);
         return muteWaitMs;
     }
@@ -1847,6 +1872,10 @@ audio_devices_t AudioPolicyManager::getDeviceForInputSource(int inputSource)
             device = AUDIO_DEVICE_IN_BLUETOOTH_SCO_HEADSET;
         } else if (mAvailableInputDevices & AUDIO_DEVICE_IN_WIRED_HEADSET) {
             device = AUDIO_DEVICE_IN_WIRED_HEADSET;
+#ifdef QCOM_ANC_HEADSET_ENABLED
+        } else if (mAvailableInputDevices & AUDIO_DEVICE_IN_ANC_HEADSET) {
+            device = AUDIO_DEVICE_IN_ANC_HEADSET;
+#endif
         } else if (mAvailableInputDevices & AUDIO_DEVICE_IN_ANLG_DOCK_HEADSET) {
             device = AUDIO_DEVICE_IN_ANLG_DOCK_HEADSET;
         } else if (mAvailableInputDevices & AUDIO_DEVICE_IN_BUILTIN_MIC) {
@@ -1936,6 +1965,10 @@ AudioPolicyManager::device_category AudioPolicyManager::getDeviceCategory(audio_
             return DEVICE_CATEGORY_EARPIECE;
         case AUDIO_DEVICE_OUT_WIRED_HEADSET:
         case AUDIO_DEVICE_OUT_WIRED_HEADPHONE:
+#ifdef QCOM_ANC_HEADSET_ENABLED
+        case AUDIO_DEVICE_OUT_ANC_HEADSET:
+        case AUDIO_DEVICE_OUT_ANC_HEADPHONE:
+#endif
         case AUDIO_DEVICE_OUT_BLUETOOTH_SCO:
         case AUDIO_DEVICE_OUT_BLUETOOTH_SCO_HEADSET:
         case AUDIO_DEVICE_OUT_BLUETOOTH_A2DP:

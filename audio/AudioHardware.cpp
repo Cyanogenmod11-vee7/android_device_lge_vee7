@@ -266,17 +266,6 @@ status_t AudioHardware::initCheck()
     return mInit ? NO_ERROR : NO_INIT;
 }
 
-// default implementation calls its "without flags" counterpart
-AudioStreamOut* AudioHardware::openOutputStreamWithFlags(uint32_t devices,
-                                          audio_output_flags_t flags,
-                                          int *format,
-                                          uint32_t *channels,
-                                          uint32_t *sampleRate,
-                                          status_t *status)
-{
-    return openOutputStream(devices, format, channels, sampleRate, status);
-}
-
 AudioStreamOut* AudioHardware::openOutputStream(uint32_t devices, int *format, uint32_t *channels, uint32_t *sampleRate, status_t *status)
 {
     audio_output_flags_t flags = static_cast<audio_output_flags_t> (*status);
@@ -516,36 +505,6 @@ status_t AudioHardware::setMode(int mode)
         clearCurDevice();
     }
     return status;
-}
-
-status_t AudioHardware::setMasterMute(bool muted) {
-    //TODO: enable when supported by driver
-    return INVALID_OPERATION;
-}
-
-int AudioHardware::createAudioPatch(unsigned int num_sources,
-        const struct audio_port_config *sources,
-        unsigned int num_sinks,
-        const struct audio_port_config *sinks,
-        audio_patch_handle_t *handle) {
-    //TODO: enable when supported by driver
-    return INVALID_OPERATION;
-}
-
-int AudioHardware::releaseAudioPatch(audio_patch_handle_t handle) {
-    //TODO: enable when supported by driver
-    return INVALID_OPERATION;
-}
-
-int AudioHardware::getAudioPort(struct audio_port *port) {
-    //TODO: enable when supported by driver
-    return INVALID_OPERATION;
-}
-
-int AudioHardware::setAudioPortConfig(
-        const struct audio_port_config *config) {
-    //TODO: enable when supported by driver
-    return INVALID_OPERATION;
 }
 
 bool AudioHardware::checkOutputStandby()
@@ -2146,13 +2105,13 @@ status_t AudioHardware::AudioStreamOutMSM72xx::setParameters(const String8& keyV
 
 #ifdef QCOM_FM_ENABLED
     float fm_volume;
-    key = String8(AUDIO_PARAMETER_KEY_FM_VOLUME);
+    key = String8(AudioParameter::keyFmVolume);
     if (param.getFloat(key, fm_volume) == NO_ERROR) {
         mHardware->setFmVolume(fm_volume);
         param.remove(key);
     }
 
-    key = String8(AUDIO_PARAMETER_KEY_HANDLE_FM);
+    key = String8(AudioParameter::keyHandleFm);
     if (param.getInt(key, device) == NO_ERROR) {
         if (device & AUDIO_DEVICE_OUT_FM) {
             mDevices |= device;
@@ -2199,13 +2158,6 @@ status_t AudioHardware::AudioStreamOutMSM72xx::getRenderPosition(uint32_t *dspFr
     //TODO: enable when supported by driver
     return INVALID_OPERATION;
 }
-
-status_t AudioHardware::AudioStreamOutMSM72xx::getPresentationPosition(uint64_t *frames, struct timespec *timestamp)
-{
-    //TODO: enable when supported by driver
-    return INVALID_OPERATION;
-}
-
 
 #ifdef QCOM_VOIP_ENABLED
 AudioHardware::AudioStreamOutDirect::AudioStreamOutDirect() :
@@ -2490,12 +2442,6 @@ status_t AudioHardware::AudioStreamOutDirect::getRenderPosition(uint32_t *dspFra
 #endif /*QCOM_VOIP_ENABLED*/
 
 // End AudioStreamOutDirect
-
-status_t AudioHardware::AudioStreamOutDirect::getPresentationPosition(uint64_t *frames, struct timespec *timestamp)
-{
-    //TODO: enable when supported by driver
-    return INVALID_OPERATION;
-}
 
 //.----------------------------------------------------------------------------
 int AudioHardware::AudioStreamInMSM72xx::InstanceCount = 0;
@@ -3233,7 +3179,7 @@ void  AudioHardware::AudioSessionOutLPA::eventThreadEntry()
     while (1) {
         //Wait for an event to occur
         rc = ioctl(afd, AUDIO_GET_EVENT, &cur_pcmdec_event);
-        ALOGV("pcm dec Event Thread rc = %d and errno is %d",rc, errno);
+        ALOGE("pcm dec Event Thread rc = %d and errno is %d",rc, errno);
 
         if ( (rc < 0) && ((errno == ENODEV) || (errno == EBADF)) ) {
             ALOGV("AUDIO__GET_EVENT called. Exit the thread");
@@ -3244,7 +3190,7 @@ void  AudioHardware::AudioSessionOutLPA::eventThreadEntry()
         case AUDIO_EVENT_WRITE_DONE:
             {
                 Mutex::Autolock autoLock(mLock);
-                ALOGV("WRITE_DONE: addr %p len %d and fd is %d\n",
+                ALOGE("WRITE_DONE: addr %p len %d and fd is %d\n",
                      cur_pcmdec_event.event_payload.aio_buf.buf_addr,
                      cur_pcmdec_event.event_payload.aio_buf.data_len,
                      (int32_t) cur_pcmdec_event.event_payload.aio_buf.private_data);
@@ -3493,12 +3439,6 @@ void AudioHardware::AudioSessionOutLPA::reset()
 }
 
 status_t AudioHardware::AudioSessionOutLPA::getRenderPosition(uint32_t *dspFrames)
-{
-    //TODO: enable when supported by driver
-    return INVALID_OPERATION;
-}
-
-status_t AudioHardware::AudioSessionOutLPA::getPresentationPosition(uint64_t *frames, struct timespec *timestamp)
 {
     //TODO: enable when supported by driver
     return INVALID_OPERATION;

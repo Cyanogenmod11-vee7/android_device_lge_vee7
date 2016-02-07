@@ -255,14 +255,6 @@ static int out_get_next_write_timestamp(const struct audio_stream_out *stream,
     return out->qcom_out->getNextWriteTimestamp(timestamp);
 }
 
-static int out_get_presentation_position(const struct audio_stream_out *stream,
-                                         uint64_t *frames, struct timespec *timestamp)
-{
-    const struct qcom_stream_out *out =
-        reinterpret_cast<const struct qcom_stream_out *>(stream);
-    return out->qcom_out->getPresentationPosition(frames, timestamp);
-}
-
 /** audio_stream_in implementation **/
 static uint32_t in_get_sample_rate(const struct audio_stream *stream)
 {
@@ -433,6 +425,10 @@ static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
             AUDIO_DEVICE_OUT_USB_ACCESSORY |
             AUDIO_DEVICE_OUT_USB_DEVICE |
             AUDIO_DEVICE_OUT_REMOTE_SUBMIX |
+#ifdef QCOM_ANC_HEADSET_ENABLED
+            AUDIO_DEVICE_OUT_ANC_HEADSET |
+            AUDIO_DEVICE_OUT_ANC_HEADPHONE |
+#endif
 #ifdef QCOM_PROXY_DEVICE_ENABLED
             AUDIO_DEVICE_OUT_PROXY |
 #endif
@@ -455,6 +451,9 @@ static uint32_t adev_get_supported_devices(const struct audio_hw_device *dev)
             AUDIO_DEVICE_IN_DGTL_DOCK_HEADSET |
             AUDIO_DEVICE_IN_USB_ACCESSORY |
             AUDIO_DEVICE_IN_USB_DEVICE |
+#ifdef QCOM_ANC_HEADSET_ENABLED
+            AUDIO_DEVICE_IN_ANC_HEADSET |
+#endif
 #ifdef QCOM_PROXY_DEVICE_ENABLED
             AUDIO_DEVICE_IN_PROXY |
 #endif
@@ -538,8 +537,7 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
                                    audio_devices_t devices,
                                    audio_output_flags_t flags,
                                    struct audio_config *config,
-                                   struct audio_stream_out **stream_out,
-                                   const char * address __unused)
+                                   struct audio_stream_out **stream_out)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
     status_t status;
@@ -579,7 +577,6 @@ static int adev_open_output_stream(struct audio_hw_device *dev,
     out->stream.write = out_write;
     out->stream.get_render_position = out_get_render_position;
     out->stream.get_next_write_timestamp = out_get_next_write_timestamp;
-    out->stream.get_presentation_position = out_get_presentation_position;
 #ifdef QCOM_TUNNEL_LPA_ENABLED
     out->stream.start = out_start;
     out->stream.pause = out_pause;
@@ -613,9 +610,7 @@ static int adev_open_input_stream(struct audio_hw_device *dev,
                                   audio_io_handle_t handle,
                                   audio_devices_t devices,
                                   audio_config *config,
-                                  audio_stream_in **stream_in, audio_input_flags_t flags,
-                                  const char * address __unused,
-                                  audio_source_t source __unused)
+                                  audio_stream_in **stream_in)
 {
     struct qcom_audio_device *qadev = to_ladev(dev);
     status_t status;
