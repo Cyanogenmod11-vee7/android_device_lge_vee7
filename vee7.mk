@@ -38,8 +38,7 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.telephony.cdma.xml:system/etc/permissions/android.hardware.telephony.cdma.xml \
     frameworks/native/data/etc/android.hardware.audio.low_latency.xml:system/etc/permissions/android.hardware.audio.low_latency.xml \
     frameworks/native/data/etc/android.hardware.bluetooth_le.xml:system/etc/permissions/android.hardware.bluetooth_le.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_audio.xml:system/etc/media_codecs_google_audio.xml \
-    frameworks/av/media/libstagefright/data/media_codecs_google_video.xml:system/etc/media_codecs_google_video.xml
+
 
 # Display
 PRODUCT_PACKAGES += \
@@ -60,8 +59,7 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES +=  \
 	gps.msm7x27a \
 	power.msm7x27a \
-	lights.msm7x27a \
-	camera.msm7x27a
+	lights.msm7x27a 
 
 # BT
 PRODUCT_PACKAGES += \
