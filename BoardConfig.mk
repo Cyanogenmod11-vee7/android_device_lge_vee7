@@ -7,10 +7,12 @@ TARGET_GLOBAL_CPPFLAGS += -mfloat-abi=softfp -mfpu=neon-vfpv4
 TARGET_RELEASE_CPPFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
 COMMON_GLOBAL_CFLAGS += -DUSE_MDP3
 COMMON_GLOBAL_CFLAGS += -DLPA_DEFAULT_BUFFER_SIZE=480
-COMMON_GLOBAL_CFLAGS += -DQCOM_LEGACY_UIDS
-COMMON_GLOBAL_CFLAGS += -DNO_SECURE_DISCARD
 
 TARGET_BOOTLOADER_BOARD_NAME := vee7
+
+# Compiler Optimization
+ARCH_ARM_HIGH_OPTIMIZATION := true
+ARCH_ARM_HIGH_OPTIMIZATION_COMPAT := true
 
 # Targets
 TARGET_AVOID_DRAW_TEXTURE_EXTENSION := true
@@ -51,6 +53,7 @@ TARGET_USERIMAGES_USE_EXT4 := true
 # Qualcomm hardware
 BOARD_USES_QCOM_HARDWARE := true
 TARGET_USE_QCOM_BIONIC_OPTIMIZATION := true
+TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
 TARGET_USES_QCOM_BSP := true
 TARGET_USES_ION := true
 
@@ -61,16 +64,19 @@ BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
 BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := $(TARGET_BOARD_PLATFORM)
 
 # Media
-TARGET_ENABLE_QC_AV_ENHANCEMENTS := true
-COMMON_GLOBAL_CFLAGS += -DBOARD_CANT_REALLOCATE_OMX_BUFFERS
+TARGET_QCOM_MEDIA_VARIANT := caf
 
 # Audio
+TARGET_QCOM_AUDIO_VARIANT := caf
 BOARD_USES_LEGACY_ALSA_AUDIO := true
+TARGET_HAS_QACT := true
 
-# BIONIC: use legacy mmap
-BOARD_USES_LEGACY_MMAP := true
+# FM
+BOARD_HAVE_QCOM_FM := true
+QCOM_FM_ENABLED := true
 
 # Display
+TARGET_QCOM_DISPLAY_VARIANT := caf
 BOARD_ADRENO_DECIDE_TEXTURE_TARGET := true
 USE_OPENGL_RENDERER := true
 TARGET_DISPLAY_USE_RETIRE_FENCE := true
@@ -87,33 +93,8 @@ BOARD_HARDWARE_CLASS := device/lge/vee7/cmhw
 BOARD_HAVE_BLUETOOTH := true
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/lge/vee7/bluetooth
 
-# RIL
-# BOARD_RIL_CLASS := ../../../device/lge/vee7/ril/
-
 # Light
 TARGET_PROVIDES_LIBLIGHT := true
-
-# Camera
-USE_DEVICE_SPECIFIC_CAMERA := true
-
-# Enable Minikin text layout engine (will be the default soon)
-USE_MINIKIN := true
-
-# Use dlmalloc instead of jemalloc for mallocs on low-ram targets
-MALLOC_IMPL := dlmalloc
-
-# Enable dex-preoptimization to speed up first boot sequence
-ifeq ($(HOST_OS),linux)
-	WITH_DEXPREOPT := true
-endif
-WITH_DEXPREOPT_PIC := true
-DONT_DEXPREOPT_PREBUILTS := true
-
-# Include an expanded selection of fonts
-EXTENDED_FONT_FOOTPRINT := true
-
-# Block based Over-The-Air
-BLOCK_BASED_OTA := false
 
 # Wlan
 BOARD_HAS_QCOM_WLAN := true
