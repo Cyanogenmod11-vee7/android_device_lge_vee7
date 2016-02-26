@@ -2,9 +2,8 @@
 -include vendor/lge/vee7/BoardConfigVendor.mk
 
 # Compiler flags
-TARGET_GLOBAL_CFLAGS += -mfloat-abi=softfp -mfpu=neon-vfpv4
-TARGET_GLOBAL_CPPFLAGS += -mfloat-abi=softfp -mfpu=neon-vfpv4
-TARGET_RELEASE_CPPFLAGS += -DNEEDS_VECTORIMPL_SYMBOLS
+TARGET_GLOBAL_CFLAGS += -mfpu=neon-vfpv4 -mfloat-abi=softfp
+TARGET_GLOBAL_CPPFLAGS += -mfpu=neon-vfpv4 -mfloat-abi=softfp
 COMMON_GLOBAL_CFLAGS += -DUSE_MDP3
 COMMON_GLOBAL_CFLAGS += -DLPA_DEFAULT_BUFFER_SIZE=480
 
@@ -39,7 +38,7 @@ BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01300000
 BOARD_KERNEL_BASE := 0x00200000
 BOARD_KERNEL_PAGESIZE := 4096
 TARGET_KERNEL_CONFIG := cyanogenmod_vee7_defconfig
-BOARD_KERNEL_CMDLINE := androidboot.hardware=vee7 msm_cpr.enable=0 selinux=0 no_console_suspend=1
+BOARD_KERNEL_CMDLINE := androidboot.hardware=vee7 selinux=0
 
 # Partitions
 BOARD_BOOTIMAGE_PARTITION_SIZE := 12582912
@@ -63,6 +62,9 @@ BOARD_USES_QCOM_GPS := true
 BOARD_VENDOR_QCOM_GPS_LOC_API_AMSS_VERSION := 50000
 BOARD_VENDOR_QCOM_GPS_LOC_API_HARDWARE := $(TARGET_BOARD_PLATFORM)
 
+# Camera
+USE_DEVICE_SPECIFIC_CAMERA := true
+
 # Media
 TARGET_QCOM_MEDIA_VARIANT := caf
 
@@ -71,17 +73,12 @@ TARGET_QCOM_AUDIO_VARIANT := caf
 BOARD_USES_LEGACY_ALSA_AUDIO := true
 TARGET_HAS_QACT := true
 
-# FM
-BOARD_HAVE_QCOM_FM := true
-QCOM_FM_ENABLED := true
-
 # Display
 TARGET_QCOM_DISPLAY_VARIANT := caf
 BOARD_ADRENO_DECIDE_TEXTURE_TARGET := true
 USE_OPENGL_RENDERER := true
 TARGET_DISPLAY_USE_RETIRE_FENCE := true
 TARGET_NO_INITLOGO := true
-HWUI_COMPILE_FOR_PERF := true
 
 # Screenshot
 BOARD_USE_MHEAP_SCREENSHOT := true
@@ -125,3 +122,31 @@ TARGET_RECOVERY_FSTAB := device/lge/vee7/rootdir/fstab.vee7
 
 # Charger
 COMMON_GLOBAL_CFLAGS += -DBOARD_CHARGING_CMDLINE_NAME='"androidboot.mode"' -DBOARD_CHARGING_CMDLINE_VALUE='"charger"'
+
+# Recovery
+RECOVERY_VARIANT					:= omni
+TARGET_RECOVERY_PIXEL_FORMAT 		:= RGBX_8888
+TARGET_USE_CUSTOM_LUN_FILE_PATH 	:= /sys/class/android_usb/android0/f_mass_storage/lun/file
+BOARD_UMS_LUNFILE					:= /sys/class/android_usb/android0/f_mass_storage/lun/file
+BOARD_HAS_LARGE_FILESYSTEM 			:= true
+TARGET_USERIMAGES_USE_EXT4			:= true
+RECOVERY_GRAPHICS_USE_LINELENGTH 	:= true
+DEVICE_RESOLUTION					:= 480x800
+BOARD_HAS_NO_SELECT_BUTTON 			:= true
+BOARD_HAS_NO_MISC_PARTITION 		:= true
+TARGET_RECOVERY_QCOM_RTC_FIX 		:= true
+BOARD_HAS_FLIPPED_SCREEN			:= true
+RECOVERY_FSTAB_VERSION 				:= 2
+TW_NO_REBOOT_BOOTLOADER 			:= true
+TW_BRIGHTNESS_PATH					:= /sys/class/leds/lcd-backlight/brightness
+TW_MAX_BRIGHTNESS 					:= 225
+TARGET_RECOVERY_FSTAB 				:= device/lge/vee7/recovery.fstab
+RECOVERY_SDCARD_ON_DATA 			:= true 
+TW_EXTERNAL_STORAGE_PATH 			:= "/sdcard"
+TW_EXTERNAL_STORAGE_MOUNT_POINT 	:= "sdcard"
+TW_INTERNAL_STORAGE_PATH 			:= "/data/media/0"
+TW_INTERNAL_STORAGE_MOUNT_POINT 	:= "data"
+
+TARGET_UNIFIED_DEVICE := true
+TARGET_INIT_VENDOR_LIB := libinit_vee7
+TARGET_LIBINIT_DEFINES_FILE := device/lge/vee7/init/init_vee7.c

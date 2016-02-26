@@ -6,8 +6,21 @@
 # Radio
 rild.libargs=-d /dev/smd0
 rild.libpath=/system/lib/libril-qc-qmi-1.so
+persist.rild.nitz_plmn=
+persist.rild.nitz_long_ons_0=
+persist.rild.nitz_long_ons_1=
+persist.rild.nitz_long_ons_2=
+persist.rild.nitz_long_ons_3=
+persist.rild.nitz_short_ons_0=
+persist.rild.nitz_short_ons_1=
+persist.rild.nitz_short_ons_2=
+persist.rild.nitz_short_ons_3=
+ril.subscription.types=NV,RUIM
+DEVICE_PROVISIONED=1
+keyguard.no_require_sim=1
 persist.radio.apm_sim_not_pwdn=1
-
+ro.ril.transmitpower=true
+telephony.lteOnCdmaDevice=0
 
 # Lcd Rotation
 ro.sf.hwrotation=180
@@ -44,11 +57,6 @@ media.stagefright.enable-fma2dp=true
 media.stagefright.enable-aac=true
 media.stagefright.enable-qcp=true
 
-# Audio
-audio.offload.disable=1
-af.resampler.quality=4
-headset.hook.delay=500
-
 # Bluetooth
 ro.bluetooth.remote.autoconnect=true
 ro.bluetooth.request.master=true
@@ -58,3 +66,10 @@ ro.qualcomm.bluetooth.ftp=true
 
 # Newer camera API isn't supported.
 camera2.portability.force_api=1
+debug.camcorder.disablemeta=1
+
+# Sdcard
+ro.fuse_sdcard=true
+
+# Audio
+lpa.decode=false

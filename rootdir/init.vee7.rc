@@ -26,6 +26,10 @@
 #
 import /init.vee7.usb.rc
 
+on early-init
+    # Permission for /proc/cmdline
+    chmod 666 /proc/cmdline
+
 on init
 
     mkdir /mnt/shell/emulated 0700 shell shell
@@ -80,20 +84,19 @@ on fs
     wait /dev/block/platform/msm_sdcc.3/by-num/p23
     exec /system/bin/e2fsck -fy /dev/block/platform/msm_sdcc.3/by-num/p23
     mount ext4 /dev/block/platform/msm_sdcc.3/by-num/p23 /mpt nosuid nodev barrier=1
+    
+	setprop ro.crypto.fuse_sdcard true
 
-#+s LGBT_COMMON_FUNCTION_BRINGUP - jeonghoon.lim@lge.com 2011-12-10
-    mkdir /data/misc/bluetooth 0770 bluetooth bluetooth
-    mkdir /data/misc/bluetoothd 0770 bluetooth bluetooth    #moved from init.rc - jeonghoon.lim@lge.com
-#+e LGBT_COMMON_FUNCTION_BRINGUP
+on boot	
 
-on early-boot
-
+	mkdir /data/misc/bluetooth 0770 bluetooth bluetooth
+	mkdir /data/misc/bluetoothd 0770 bluetooth bluetooth
+    
+    chmod 0660 /dev/smd11  
+	chown system system /dev/smd11	
     chmod 0777 /dev/input/event0
     chmod 0777 /dev/input/event5
     chmod 0777 /dev/input/event3
-
-on boot	
-	
 
     chown system system /sys/devices/virtual/input/lge_touch/keyguard
     chown system system /sys/devices/virtual/input/lge_touch/incoming_call
@@ -199,6 +202,10 @@ on boot
 	chown root system /dev/block/mmcblk0p8
 	chmod 0770 /dev/block/mmcblk0p8
 # LGE_CHANGE_E : For LCD Cal
+
+    # Set Read Ahead to 1024kb
+    write /sys/block/mmcblk0/queue/read_ahead_kb 1024
+    write /sys/block/mmcblk1/queue/read_ahead_kb 1024
 
 on post-fs
 
@@ -373,14 +380,29 @@ service sensord /system/bin/sensord
     class core
     oneshot
     
-service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
+service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
     class late_start
     disabled
-    
-service fuse_sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
-    class late_start
 
-    
+service fuse_sdcard1 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard1 /storage/sdcard1
+     class late_start
+     disabled
+
+on property:ro.fuse_sdcard=true
+    start sdcard
+
+# Binding fuse mount point to /storage/emulated/legacy
+on property:init.svc.sdcard=running
+    wait /mnt/shell/emulated/0
+    mount none /mnt/shell/emulated/0 /storage/emulated/legacy bind
+
+# This will make sure that sdcard service starts as late_start.
+on nonencrypted
+    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
+
+on property:vold.decrypt=trigger_restart_framework
+    setprop ro.fuse_sdcard ${persist.fuse_sdcard}
+
  S -> Radio and socket area
 service ril-daemon1 /system/bin/rild -c 1
     class main
@@ -397,6 +419,11 @@ service qmuxd /system/bin/qmuxd
     
 service netmgrd /system/bin/netmgrd
    class main
+
+service qcom-c_main-sh /system/bin/sh /init.qcom.class_main.sh
+    class main
+    user root
+    oneshot
  
 E -> Radio and socket area
 
@@ -520,7 +547,3 @@ on charger
     setprop sys.usb.state $(sys.usb.config)
     exec /sbin/chargerlogo
 # E->Charger function
-
-    chmod 0660 /dev/smd11  
-	chown system system /dev/smd11	
-
