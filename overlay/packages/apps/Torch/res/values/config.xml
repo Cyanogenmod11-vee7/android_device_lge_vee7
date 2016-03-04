@@ -20,6 +20,8 @@
 <!-- These resources are around just to allow their values to be customized
      for different hardware and product builds. -->
 <resources>
+	<bool name="useCameraInterface">true</bool>
+	
     <!-- Full path to the sysfs toggle -->
     <string name="flashDevice">/sys/devices/platform/i2c-gpio.3/i2c-3/3-0030/brightness_uA</string>
     <!-- Low setting -->
