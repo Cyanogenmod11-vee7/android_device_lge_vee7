@@ -75,13 +75,8 @@
 /sys/devices/virtual/smdpkt/smdcntl*       open_timeout   0664 radio radio
 /dev/sdio_tty_ciq_00      0660   system     system
 /dev/tty_sdio_00          0660   system     system
-#[LGE_CHANGE_S][narasimha.chikka@lge.com],usb diag interface
 /dev/smd11                0660   system     system
 /dev/ttyGS0               0660   system     system
-#[LGE_CHANGE_E][narasimha.chikka@lge.com],usb diag interface
-#[LGE_CHANGE_S], LGE AutoRun function
-/dev/usb_autorun          0660   root       usb
-#[LGE_CHANGE_E], LGE AutoRun function
 /dev/eac                  0660   root       audio
 /dev/pmem_audio           0660   system     audio
 /dev/pmem_adsp*           0660   system     audio
@@ -132,14 +127,10 @@
 /dev/dvb/adapter0/dvr*    0664   media       media
 /dev/dvb/adapter0/video*  0664   media       media
 /dev/radio0               0640   system      system
-#/dev/i2c-5                0664   media       media
-
 # Gps
 /dev/oncrpc/00000000:0    		0660  	system       qcom_oncrpc
 /dev/oncrpc/3000008c:00050000 	0660   	system       qcom_oncrpc
 /dev/oncrpc/*            		0660   	root       	 qcom_oncrpc
-# Nfc
-/dev/pn544         0660   root        nfc
 # RfKill
 /dev/rfkill               0660   root       wifi
 # ril permissions

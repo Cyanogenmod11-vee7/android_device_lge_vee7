@@ -62,6 +62,7 @@ on init
 on fs
 	
 	mount_all /fstab.vee7
+	swapon_all /fstab.vee7
     mount debugfs debugfs /sys/kernel/debug
 		
     # Set permissions for persist partition
@@ -215,11 +216,6 @@ service qcamerasvr /system/bin/mm-qcamera-daemon
         user camera
         group camera system inet audio
 
-on property:sys.radio.shutdown=true
-   exec /system/bin/sh /system/etc/init.qcom.efs.sync.sh
-   user root
-   group root
-
 # msm specific files that need to be created on /data
 on post-fs-data
     # we will remap this as /mnt/sdcard with the sdcard fuse tool
@@ -325,7 +321,7 @@ on post-fs-data
     mkdir /data/time/ 0700 system system
     
 	start qcamerasvr
-	
+	stop ril-daemon1
     setprop vold.post_fs_data_done 1
  
 # Sensors
@@ -403,7 +399,7 @@ on nonencrypted
 on property:vold.decrypt=trigger_restart_framework
     setprop ro.fuse_sdcard ${persist.fuse_sdcard}
 
- S -> Radio and socket area
+#S -> Radio and socket area
 service ril-daemon1 /system/bin/rild -c 1
     class main
     socket rild1 stream 660 root radio
@@ -411,6 +407,14 @@ service ril-daemon1 /system/bin/rild -c 1
     user root
     disabled
     group radio cache inet misc audio sdcard_rw qcom_oncrpc diag qcom_diag log
+
+on property:ro.multi.rild=true
+	start ril-daemon1
+
+on property:sys.radio.shutdown=true
+   exec /system/bin/sh /system/etc/init.qcom.efs.sync.sh
+   user root
+   group root
         
 service qmuxd /system/bin/qmuxd
     class main
@@ -419,13 +423,8 @@ service qmuxd /system/bin/qmuxd
     
 service netmgrd /system/bin/netmgrd
    class main
-
-service qcom-c_main-sh /system/bin/sh /init.qcom.class_main.sh
-    class main
-    user root
-    oneshot
  
-E -> Radio and socket area
+#E -> Radio and socket area
 
 # Adjust socket buffer to enlarge TCP receive window for high bandwidth
 # but only if ro.data.large_tcp_window_size property is set.
