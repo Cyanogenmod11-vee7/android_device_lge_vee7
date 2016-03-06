@@ -43,7 +43,9 @@ TARGET_KERNEL_SOURCE := kernel/lge/vee7
 BOARD_MKBOOTIMG_ARGS := --ramdisk_offset 0x01300000
 BOARD_KERNEL_BASE := 0x00200000
 BOARD_KERNEL_PAGESIZE := 4096
-TARGET_KERNEL_CONFIG := cyanogenmod_vee7_defconfig
+# Dual Kernel -> Disabled 
+TARGET_KERNEL_CONFIG := cyanogenmod_vee7ds_nonfc_defconfig
+#TARGET_KERNEL_CONFIG := cyanogenmod_vee7_defconfig
 BOARD_KERNEL_CMDLINE := androidboot.hardware=vee7 selinux=0
 
 # Partitions
