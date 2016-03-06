@@ -10,6 +10,7 @@ TARGET_GLOBAL_CFLAGS += -mfloat-abi=softfp -mfpu=neon-vfpv4 -mtune=cortex-a5
 TARGET_GLOBAL_CPPFLAGS += -mfloat-abi=softfp -mfpu=neon-vfpv4 -mtune=cortex-a5
 COMMON_GLOBAL_CFLAGS += -DUSE_MDP3
 COMMON_GLOBAL_CFLAGS += -DLPA_DEFAULT_BUFFER_SIZE=480
+COMMON_GLOBAL_CFLAGS += -DNO_HW_VSYNC
 
 # Compiler Optimization
 ARCH_ARM_HIGH_OPTIMIZATION := true
