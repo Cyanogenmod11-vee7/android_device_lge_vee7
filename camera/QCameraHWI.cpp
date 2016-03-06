@@ -2460,7 +2460,7 @@ int QCameraHardwareInterface::allocate_ion_memory(
   int rc = 0;
   struct ion_handle_data handle_data;
 
-  if (caching_type == ION_FLAG_CACHED) {
+  if (caching_type == CACHED) {
       p_camera_memory->main_ion_fd[cnt] = open("/dev/ion", O_RDONLY);
   } else {
       p_camera_memory->main_ion_fd[cnt] = open("/dev/ion", O_RDONLY | O_DSYNC);
@@ -2474,8 +2474,7 @@ int QCameraHardwareInterface::allocate_ion_memory(
   /* to make it page size aligned */
   p_camera_memory->alloc[cnt].len = (p_camera_memory->alloc[cnt].len + 4095) & (~4095);
   p_camera_memory->alloc[cnt].align = 4096;
-  p_camera_memory->alloc[cnt].flags = ION_FLAG_CACHED;
-  p_camera_memory->alloc[cnt].heap_mask = ion_type;
+  p_camera_memory->alloc[cnt].flags = ion_type;
 
   rc = ioctl(p_camera_memory->main_ion_fd[cnt], ION_IOC_ALLOC, &p_camera_memory->alloc[cnt]);
   if (rc < 0) {
@@ -2531,8 +2530,7 @@ int QCameraHardwareInterface::allocate_ion_memory(QCameraStatHeap_t *p_camera_me
   /* to make it page size aligned */
   p_camera_memory->alloc[cnt].len = (p_camera_memory->alloc[cnt].len + 4095) & (~4095);
   p_camera_memory->alloc[cnt].align = 4096;
-  p_camera_memory->alloc[cnt].flags = ION_FLAG_CACHED;
-  p_camera_memory->alloc[cnt].heap_mask = (0x1 << ion_type | 0x1 << ION_IOMMU_HEAP_ID);
+  p_camera_memory->alloc[cnt].flags = (0x1 << ion_type | 0x1 << ION_IOMMU_HEAP_ID);
 
   rc = ioctl(p_camera_memory->main_ion_fd[cnt], ION_IOC_ALLOC, &p_camera_memory->alloc[cnt]);
   if (rc < 0) {
@@ -2654,10 +2652,10 @@ int QCameraHardwareInterface::initHeapMem( QCameraHalHeap_t *heap,
       } else {
          if (isZSLMode())
            rc = allocate_ion_memory(heap, i, ((0x1 << CAMERA_ZSL_ION_HEAP_ID) |
-           (0x1 << CAMERA_ZSL_ION_FALLBACK_HEAP_ID)), ION_FLAG_CACHED);
+           (0x1 << CAMERA_ZSL_ION_FALLBACK_HEAP_ID)), CACHED);
          else
            rc = allocate_ion_memory(heap, i, ((0x1 << CAMERA_ION_HEAP_ID) |
-          (0x1 << CAMERA_ION_FALLBACK_HEAP_ID)), ION_FLAG_CACHED);
+          (0x1 << CAMERA_ION_FALLBACK_HEAP_ID)), CACHED);
 
          if (rc < 0) {
            ALOGE("%sION allocation failed..fallback to ashmem\n", __func__);
